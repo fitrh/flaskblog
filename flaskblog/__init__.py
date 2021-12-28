@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_ckeditor import CKEditor
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "f7b3ed1c6060bdb873a6001735ea9914"
@@ -11,6 +12,7 @@ app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = "mysql+mysqlconnector://root@localhost/flaskblog_supriamir"
 db = SQLAlchemy(app)
+ckeditor = CKEditor(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"

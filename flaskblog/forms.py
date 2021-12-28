@@ -1,3 +1,4 @@
+from flask_ckeditor.fields import CKEditorField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
@@ -68,7 +69,7 @@ class UpdateAccountForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
-    content = TextAreaField("Content", validators=[DataRequired()])
+    content = CKEditorField("Content", validators=[DataRequired()])
     submit = SubmitField("Post")
 
 
