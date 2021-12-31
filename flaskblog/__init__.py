@@ -23,6 +23,7 @@ app.config["SECRET_KEY"] = "f7b3ed1c6060bdb873a6001735ea9914"
 app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = f"mysql+mysqlconnector://{DB['user']}:{DB['pass']}@{DB['host']}/{DB['name']}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 ckeditor = CKEditor(app)
 bcrypt = Bcrypt(app)
