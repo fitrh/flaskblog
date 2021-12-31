@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from flask_ckeditor import CKEditor
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
@@ -25,6 +26,7 @@ app.config[
 ] = f"mysql+mysqlconnector://{DB['user']}:{DB['pass']}@{DB['host']}/{DB['name']}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 ckeditor = CKEditor(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
