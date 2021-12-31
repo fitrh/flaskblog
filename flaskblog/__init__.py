@@ -1,16 +1,28 @@
 import os
+
+from dotenv import load_dotenv
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_ckeditor import CKEditor
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_ckeditor import CKEditor
+from flask_sqlalchemy import SQLAlchemy
+
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
+DOTENV = os.path.join(BASE_DIR, ".env")
+load_dotenv(DOTENV)
+DB = {
+    "name": os.getenv("DB_NAME"),
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
+    "pass": os.getenv("DB_PASS"),
+}
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "f7b3ed1c6060bdb873a6001735ea9914"
 app.config[
     "SQLALCHEMY_DATABASE_URI"
-] = "mysql+mysqlconnector://root@localhost/flaskblog_supriamir"
+] = f"mysql+mysqlconnector://{DB['user']}:{DB['pass']}@{DB['host']}/{DB['name']}"
 db = SQLAlchemy(app)
 ckeditor = CKEditor(app)
 bcrypt = Bcrypt(app)
