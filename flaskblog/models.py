@@ -1,7 +1,9 @@
-from flaskblog import db, login_manager, app
-from flask_login import UserMixin
 from datetime import datetime
+
+from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
+from flaskblog import app, db, login_manager
 
 
 @login_manager.user_loader
@@ -34,13 +36,31 @@ class User(db.Model, UserMixin):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
 
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(25), nullable=False)
+    description = db.Column(db.String(50), nullable=False)
+
+
+post_category = db.Table(
+    "post_category",
+    db.Column("post", db.Integer, db.ForeignKey("post.id"), primary_key=True),
+    db.Column("category", db.Integer, db.ForeignKey("category.id"), primary_key=True),
+)
+
+
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    # category = db.relationship('category', backref='author', lazy=True)
+    categories = db.relationship(
+        "Category",
+        secondary=post_category,
+        lazy="dynamic",
+        backref=db.backref("posts", lazy=True),
+    )
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
