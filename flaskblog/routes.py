@@ -1,19 +1,16 @@
 import os
 import secrets
-from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
-from flaskblog import app, db, bcrypt, mail
-from flaskblog.forms import (
-    RegistrationForm,
-    LoginForm,
-    UpdateAccountForm,
-    PostForm,
-    RequestResetForm,
-    ResetPasswordForm,
-)
-from flaskblog.models import User, Post
-from flask_login import login_user, current_user, logout_user, login_required
+
+from flask import abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 from flask_mail import Message
+from PIL import Image
+
+from flaskblog import app, bcrypt, db, mail
+from flaskblog.forms import (LoginForm, PostForm, RegistrationForm,
+                             RequestResetForm, ResetPasswordForm,
+                             UpdateAccountForm)
+from flaskblog.models import Category, Post, User
 
 
 @app.route("/")
