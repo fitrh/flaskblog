@@ -104,6 +104,30 @@ def account():
     )
 
 
+@app.route("/post/categories")
+def categories():
+    response = {"status": 404, "message": "Not Found", "data": []}
+    categories = Category.query.all()
+
+    if not categories:
+        return response, response["status"]
+
+    if len(categories) < 1:
+        response["status"] = 204
+        response["message"] = "No Content"
+        response["data"] = []
+        return response, response["status"]
+
+    response["status"] = 200
+    response["message"] = "Success"
+    data = []
+    for i in categories:
+        data.append({"id": i.id, "name": i.name, "description": i.description})
+    response["data"] = data
+
+    return response, response["status"]
+
+
 @app.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():
