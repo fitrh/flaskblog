@@ -18,12 +18,22 @@ from flaskblog.models import Category, Post, User
 def home():
     page = request.args.get("page", 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template("home.html", posts=posts)
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
+    return render_template("home.html", posts=posts, categories=post_per_category)
 
 
 @app.route("/about")
 def about():
-    return render_template("about.html", title="About")
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
+    return render_template("about.html", title="About", categories=post_per_category)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -96,8 +106,17 @@ def account():
         form.email.data = current_user.email
 
     image_file = url_for("static", filename="profile_pics/" + current_user.image_file)
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
     return render_template(
-        "account.html", title="Account", image_file=image_file, form=form
+        "account.html",
+        title="Account",
+        image_file=image_file,
+        form=form,
+        categories=post_per_category,
     )
 
 
@@ -130,12 +149,18 @@ def category_post(category):
     page = request.args.get("page", 1, type=int)
     category = Category.query.filter_by(name=category).first_or_404()
     posts = category.posts
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
     return render_template(
         "category_post.html",
         posts=posts,
         total_post=len(posts),
         category=category,
-        title=f"{category.name} Posts"
+        categories=post_per_category,
+        title=f"{category.name} Posts",
     )
 
 
@@ -154,21 +179,44 @@ def new_post():
         db.session.commit()
         flash("Your post has been created!", "success")
         return redirect(url_for("home"))
+
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
     return render_template(
-        "create_post.html", title="New Post", form=form, legend="New Post"
+        "create_post.html",
+        title="New Post",
+        form=form,
+        legend="New Post",
+        categories=post_per_category,
     )
 
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template("post.html", title=post.title, post=post)
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
+    return render_template(
+        "post.html", title=post.title, post=post, categories=post_per_category
+    )
 
 
 @app.route("/post/<int:post_id>/update", methods=["GET", "POST"])
 @login_required
 def update_post(post_id):
     post = Post.query.get_or_404(post_id)
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
+
     if post.author != current_user:
         abort(403)
     form = PostForm()
@@ -176,14 +224,16 @@ def update_post(post_id):
         post.title = form.title.data
         post.content = form.content.data
         category_id = form.categories.data.split(",")
-        deleted_category = [c.id for c in post.categories.all() if str(c.id) not in category_id]
+        deleted_category = [
+            c.id for c in post.categories.all() if str(c.id) not in category_id
+        ]
 
         for id in deleted_category:
             category = Category.query.get(id)
             post.categories.remove(category)
 
         for id in category_id:
-            if (int(id) not in [c.id for c in post.categories.all()]):
+            if int(id) not in [c.id for c in post.categories.all()]:
                 category = Category.query.get(id)
                 post.categories.append(category)
 
@@ -199,6 +249,7 @@ def update_post(post_id):
         form=form,
         legend="Update Post",
         post=post,
+        categories=post_per_category,
     )
 
 
@@ -218,13 +269,22 @@ def delete_post(post_id):
 def user_posts(username):
     page = request.args.get("page", 1, type=int)
     user = User.query.filter_by(username=username).first_or_404()
+    post_per_category = []
+    for category in Category.query.all():
+        post_per_category.append(
+            {"category": category.name, "posts": len(category.posts)}
+        )
     posts = (
         Post.query.filter_by(author=user)
         .order_by(Post.date_posted.desc())
         .paginate(page=page, per_page=5)
     )
     return render_template(
-        "user_posts.html", posts=posts, user=user, title="User: " + user.username
+        "user_posts.html",
+        posts=posts,
+        user=user,
+        title="User: " + user.username,
+        categories=post_per_category,
     )
 
 
