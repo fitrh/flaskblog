@@ -22,13 +22,17 @@ from flaskblog.models import Category, Post, User
 @app.route("/home")
 def home():
     page = request.args.get("page", 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(
+        page=page, per_page=5
+    )
     post_per_category = []
     for category in Category.query.all():
         post_per_category.append(
             {"category": category.name, "posts": len(category.posts)}
         )
-    return render_template("home.html", posts=posts, categories=post_per_category)
+    return render_template(
+        "home.html", posts=posts, categories=post_per_category
+    )
 
 
 @app.route("/about")
@@ -38,7 +42,9 @@ def about():
         post_per_category.append(
             {"category": category.name, "posts": len(category.posts)}
         )
-    return render_template("about.html", title="About", categories=post_per_category)
+    return render_template(
+        "about.html", title="About", categories=post_per_category
+    )
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -47,9 +53,13 @@ def register():
         return redirect(url_for("home"))
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode(
+            "utf-8"
+        )
         user = User(
-            username=form.username.data, email=form.email.data, password=hashed_pw
+            username=form.username.data,
+            email=form.email.data,
+            password=hashed_pw,
         )
         db.session.add(user)
         db.session.commit()
@@ -65,12 +75,19 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data.lower()).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and bcrypt.check_password_hash(
+            user.password, form.password.data
+        ):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
-            return redirect(next_page) if next_page else redirect(url_for("home"))
+            return (
+                redirect(next_page) if next_page else redirect(url_for("home"))
+            )
         else:
-            flash("Unsuccessful Login! Please check username and password", "danger")
+            flash(
+                "Unsuccessful Login! Please check username and password",
+                "danger",
+            )
     return render_template("login.html", title="Login", form=form)
 
 
@@ -84,7 +101,9 @@ def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, "static/profile_pics", picture_fn)
+    picture_path = os.path.join(
+        app.root_path, "static/profile_pics", picture_fn
+    )
 
     output_size = (125, 125)
     i = Image.open(form_picture)
@@ -110,7 +129,9 @@ def account():
         form.username.data = current_user.username
         form.email.data = current_user.email
 
-    image_file = url_for("static", filename="profile_pics/" + current_user.image_file)
+    image_file = url_for(
+        "static", filename="profile_pics/" + current_user.image_file
+    )
     post_per_category = []
     for category in Category.query.all():
         post_per_category.append(
@@ -175,7 +196,9 @@ def new_post():
     form = PostForm()
     if form.validate_on_submit():
         post = Post(
-            title=form.title.data, content=form.content.data, author=current_user
+            title=form.title.data,
+            content=form.content.data,
+            author=current_user,
         )
         for id in form.categories.data.split(","):
             category = Category.query.get(id)
@@ -296,12 +319,15 @@ def user_posts(username):
 def send_reset_email(user):
     token = user.get_reset_token()
     msg = Message(
-        "Password Reset Request", sender="itomikasa@gmail.com", recipients=[user.email]
+        "Password Reset Request",
+        sender="itomikasa@gmail.com",
+        recipients=[user.email],
     )
     msg.body = f"""To reset your password, visit the following link:
 {url_for('reset_token', token=token, _external=True)}
 
-If you did not make this request then simpy ignore this email and no changes will be made
+If you did not make this request then simpy ignore this email
+and no changes will be made
 """
     mail.send(msg)
 
@@ -315,10 +341,13 @@ def reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         send_reset_email(user)
         flash(
-            "An Email has been sent with instructions to reset your password.", "info"
+            "An Email has been sent with instructions to reset your password.",
+            "info",
         )
         return redirect(url_for("login"))
-    return render_template("reset_request.html", title="Reset Password", form=form)
+    return render_template(
+        "reset_request.html", title="Reset Password", form=form
+    )
 
 
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
@@ -331,9 +360,13 @@ def reset_token(token):
         return redirect(url_for("reset_request"))
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+        hashed_pw = bcrypt.generate_password_hash(form.password.data).decode(
+            "utf-8"
+        )
         user.password = hashed_pw
         db.session.commit()
         flash("Your password has been reset", "success")
         return redirect(url_for("login"))
-    return render_template("reset_token.html", title="Reset Password", form=form)
+    return render_template(
+        "reset_token.html", title="Reset Password", form=form
+    )
