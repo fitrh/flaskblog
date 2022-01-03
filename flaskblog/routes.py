@@ -172,7 +172,6 @@ def categories():
 
 @app.route("/post/category/<string:category>")
 def category_post(category):
-    page = request.args.get("page", 1, type=int)
     category = Category.query.filter_by(name=category).first_or_404()
     posts = category.posts
     post_per_category = []
