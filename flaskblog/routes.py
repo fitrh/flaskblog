@@ -161,6 +161,18 @@ def update_post(post_id):
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
+        category_id = form.categories.data.split(",")
+        deleted_category = [c.id for c in post.categories.all() if str(c.id) not in category_id]
+
+        for id in deleted_category:
+            category = Category.query.get(id)
+            post.categories.remove(category)
+
+        for id in category_id:
+            if (int(id) not in [c.id for c in post.categories.all()]):
+                category = Category.query.get(id)
+                post.categories.append(category)
+
         db.session.commit()
         flash("Your post has been updated!", "success")
         return redirect(url_for("post", post_id=post.id))
@@ -168,7 +180,11 @@ def update_post(post_id):
         form.title.data = post.title
         form.content.data = post.content
     return render_template(
-        "create_post.html", title="Update Post", form=form, legend="Update Post"
+        "create_post.html",
+        title="Update Post",
+        form=form,
+        legend="Update Post",
+        post=post,
     )
 
 
