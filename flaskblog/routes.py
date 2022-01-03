@@ -7,9 +7,14 @@ from flask_mail import Message
 from PIL import Image
 
 from flaskblog import app, bcrypt, db, mail
-from flaskblog.forms import (LoginForm, PostForm, RegistrationForm,
-                             RequestResetForm, ResetPasswordForm,
-                             UpdateAccountForm)
+from flaskblog.forms import (
+    LoginForm,
+    PostForm,
+    RegistrationForm,
+    RequestResetForm,
+    ResetPasswordForm,
+    UpdateAccountForm
+)
 from flaskblog.models import Category, Post, User
 
 
