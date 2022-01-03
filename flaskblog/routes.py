@@ -125,6 +125,20 @@ def categories():
     return response, response["status"]
 
 
+@app.route("/post/category/<string:category>")
+def category_post(category):
+    page = request.args.get("page", 1, type=int)
+    category = Category.query.filter_by(name=category).first_or_404()
+    posts = category.posts
+    return render_template(
+        "category_post.html",
+        posts=posts,
+        total_post=len(posts),
+        category=category,
+        title=f"{category.name} Posts"
+    )
+
+
 @app.route("/post/new", methods=["GET", "POST"])
 @login_required
 def new_post():

@@ -15,7 +15,11 @@
             </div>
             <h2 class="article-title">{{ post.title }}</h2>
             {% for category in post.categories %}
-            <a href="#" class="badge badge-secondary">{{ category.name }}</a>
+            <a
+            href={{ url_for("category_post", category=category.name) }}
+            class="badge badge-secondary">
+                {{ category.name }}
+            </a>
             {% endfor %}
             <p class="article-content">{{ post.content | safe }}</p>
         </div>
