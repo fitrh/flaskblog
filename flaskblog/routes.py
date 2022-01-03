@@ -37,14 +37,7 @@ def home():
 
 @app.route("/about")
 def about():
-    post_per_category = []
-    for category in Category.query.all():
-        post_per_category.append(
-            {"category": category.name, "posts": len(category.posts)}
-        )
-    return render_template(
-        "about.html", title="About", categories=post_per_category
-    )
+    return render_template("about.html", title="About")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -132,17 +125,8 @@ def account():
     image_file = url_for(
         "static", filename="profile_pics/" + current_user.image_file
     )
-    post_per_category = []
-    for category in Category.query.all():
-        post_per_category.append(
-            {"category": category.name, "posts": len(category.posts)}
-        )
     return render_template(
-        "account.html",
-        title="Account",
-        image_file=image_file,
-        form=form,
-        categories=post_per_category,
+        "account.html", title="Account", image_file=image_file, form=form
     )
 
 
@@ -174,11 +158,11 @@ def categories():
 def category_post(category):
     category = Category.query.filter_by(name=category).first_or_404()
     posts = category.posts
+
     post_per_category = []
-    for category in Category.query.all():
-        post_per_category.append(
-            {"category": category.name, "posts": len(category.posts)}
-        )
+    for c in Category.query.all():
+        post_per_category.append({"category": c.name, "posts": len(c.posts)})
+
     return render_template(
         "category_post.html",
         posts=posts,
@@ -207,17 +191,8 @@ def new_post():
         flash("Your post has been created!", "success")
         return redirect(url_for("home"))
 
-    post_per_category = []
-    for category in Category.query.all():
-        post_per_category.append(
-            {"category": category.name, "posts": len(category.posts)}
-        )
     return render_template(
-        "create_post.html",
-        title="New Post",
-        form=form,
-        legend="New Post",
-        categories=post_per_category,
+        "create_post.html", title="New Post", form=form, legend="New Post"
     )
 
 
@@ -238,12 +213,6 @@ def post(post_id):
 @login_required
 def update_post(post_id):
     post = Post.query.get_or_404(post_id)
-    post_per_category = []
-    for category in Category.query.all():
-        post_per_category.append(
-            {"category": category.name, "posts": len(category.posts)}
-        )
-
     if post.author != current_user:
         abort(403)
     form = PostForm()
@@ -276,7 +245,6 @@ def update_post(post_id):
         form=form,
         legend="Update Post",
         post=post,
-        categories=post_per_category,
     )
 
 

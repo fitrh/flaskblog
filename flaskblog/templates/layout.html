@@ -50,7 +50,7 @@
     </header>
 
     <main role="main" class="container">
-        <div class="row">
+        <div class="row justify-content-md-center">
             <div class="col-md-8">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
@@ -63,6 +63,7 @@
                 {% endwith %}
                 {% block content %}{% endblock %}
             </div>
+            {% if categories %}
             <div class="col-md-4">
                 <div class="content-section">
                     <h3>Categories</h3>
@@ -80,6 +81,7 @@
                     </p>
                 </div>
             </div>
+            {% endif %}
         </div>
     </main>
 
