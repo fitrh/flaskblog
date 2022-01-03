@@ -31,6 +31,32 @@
                     {{ form.content(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
+            <div class="form-group">
+                {{ form.categories.label(class="form-control-label") }}
+                {% if form.categories.errors %}
+                    {{ form.content(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.content.errors %}
+                        <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.categories() }}
+                {% endif %}
+                <div id="selected-categories-list" class={{ "mb-2" if post else "" }}>
+                    {% if post %}
+                    {% for category in post.categories %}
+                    <span
+                    value={{ category.id }}
+                    class="p-2 mr-1 btn btn-secondary badge badge-secondary category-bagdes">
+                        {{ category.name }} ({{ category.description }})
+                    </span>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <select id="category-selection" name="categories" class="form-control">
+                </select>
+            </div>
         </fieldset>
         <div class="form-group">
             {{ form.submit(class="btn btn-outline-info")}}
@@ -39,4 +65,63 @@
     {{ ckeditor.load() }}
     {{ ckeditor.config(name="content") }}
 </div>
+<script>
+
+const selectedCategories = document.getElementById("selected-categories")
+const categorySelection = document.getElementById("category-selection")
+const categoryContainer = document.getElementById("selected-categories-list")
+const categoryBagdes = document.querySelectorAll(".category-bagdes")
+const categorySet = new Set()
+
+const onCategoryBadgeClick = (e) => {
+    e.preventDefault()
+    const badge = e.target
+    if (badge.attributes.value) {
+        categorySet.delete(badge.attributes.value.value)
+    } else {
+        categorySet.delete(badge.value)
+    }
+    selectedCategories.value = Array.from(categorySet.values())
+    categoryContainer.removeChild(badge)
+    console.log(selectedCategories)
+}
+
+const onCategoryClick = (e) => {
+    e.preventDefault()
+    const option = e.target
+    if (!categorySet.has(option.value)) {
+        categorySet.add(option.value)
+        const category = document.createElement("span")
+        category.value = option.value
+        category.textContent = option.textContent
+        category.classList.add("p-2", "mr-2", "btn", "btn-secondary", "badge", "badge-secondary")
+        category.onclick = onCategoryBadgeClick
+        categoryContainer.classList.add("mb-2")
+        categoryContainer.appendChild(category)
+    }
+    selectedCategories.value = Array.from(categorySet.values())
+    console.log(selectedCategories)
+}
+
+const appendSelectedCategory = (category) => {
+    const option = document.createElement("option")
+    option.value = category.id
+    option.textContent = `${ category.name } (${ category.description })`
+    option.onclick = onCategoryClick
+    categorySelection.appendChild(option)
+}
+
+const parseCategories = async (categories) => categories.forEach(appendSelectedCategory)
+
+fetch("/post/categories")
+        .then(response => response.json())
+        .then(json => json.data)
+        .then(parseCategories)
+
+categoryBagdes.forEach(e => {
+    categorySet.add(e.attributes.value.value)
+    e.onclick = onCategoryBadgeClick
+})
+
+</script>
 {% endblock content %}

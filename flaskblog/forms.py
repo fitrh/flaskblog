@@ -70,6 +70,9 @@ class UpdateAccountForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     content = CKEditorField("Content", validators=[DataRequired()])
+    categories = HiddenField(
+        "Categories", validators=[DataRequired()], id="selected-categories"
+    )
     submit = SubmitField("Post")
 
 

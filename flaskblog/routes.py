@@ -133,6 +133,9 @@ def new_post():
         post = Post(
             title=form.title.data, content=form.content.data, author=current_user
         )
+        for id in form.categories.data.split(","):
+            category = Category.query.get(id)
+            post.categories.append(category)
         db.session.add(post)
         db.session.commit()
         flash("Your post has been created!", "success")
