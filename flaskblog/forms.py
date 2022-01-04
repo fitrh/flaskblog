@@ -1,16 +1,17 @@
 from flask_ckeditor.fields import CKEditorField
-from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileAllowed, FileField
 from wtforms import (
-    StringField,
-    PasswordField,
-    SubmitField,
     BooleanField,
-    ValidationError,
-    TextAreaField,
+    PasswordField,
+    StringField,
+    SubmitField,
+    ValidationError
 )
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.fields.simple import HiddenField
+from wtforms.validators import DataRequired, Email, EqualTo, Length
+
 from flaskblog.models import User
 
 
@@ -70,6 +71,9 @@ class UpdateAccountForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
     content = CKEditorField("Content", validators=[DataRequired()])
+    categories = HiddenField(
+        "Categories", validators=[DataRequired()], id="selected-categories"
+    )
     submit = SubmitField("Post")
 
 

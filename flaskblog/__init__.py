@@ -1,17 +1,33 @@
 import os
+
+from dotenv import load_dotenv
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_ckeditor import CKEditor
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_ckeditor import CKEditor
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+BASE_DIR = os.path.join(os.path.dirname(__file__), "..")
+DOTENV = os.path.join(BASE_DIR, ".env")
+load_dotenv(DOTENV)
+DB = {
+    "driver": os.getenv("DB_DRIVER"),
+    "name": os.getenv("DB_NAME"),
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
+    "pass": os.getenv("DB_PASS"),
+}
+DB_AUTH = f"{DB['user']}:{DB['pass']}@{DB['host']}"
+DB_URI = f"{DB['driver']}://{DB_AUTH}/{DB['name']}"
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "f7b3ed1c6060bdb873a6001735ea9914"
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "mysql+mysqlconnector://root@localhost/flaskblog_supriamir"
+app.config["SQLALCHEMY_DATABASE_URI"] = DB_URI
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 ckeditor = CKEditor(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
