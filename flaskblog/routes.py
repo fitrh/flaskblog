@@ -1,10 +1,21 @@
 import os
 import secrets
+from datetime import datetime
 
-from flask import abort, flash, redirect, render_template, request, url_for
+from flask import (
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    send_from_directory,
+    url_for,
+)
+from flask_ckeditor import upload_fail, upload_success
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_mail import Message
 from PIL import Image
+from werkzeug.utils import secure_filename
 
 from flaskblog import app, bcrypt, db, mail
 from flaskblog.forms import (
@@ -13,7 +24,7 @@ from flaskblog.forms import (
     RegistrationForm,
     RequestResetForm,
     ResetPasswordForm,
-    UpdateAccountForm
+    UpdateAccountForm,
 )
 from flaskblog.models import Category, Post, User
 
@@ -152,6 +163,25 @@ def categories():
     response["data"] = data
 
     return response, response["status"]
+
+
+@app.route("/post/upload/images", methods=["POST"])
+def upload_images():
+    file = request.files.get("upload")
+    extension = file.filename.split(".")[-1].lower()
+    if extension not in ["jpg", "gif", "png", "jpeg"]:
+        return upload_fail(message="Image only!")
+    timestamp = datetime.now().time().strftime("%H%M%S")
+    filename = f"{timestamp}_{secure_filename(file.filename)}"
+    file.save(os.path.join(app.root_path, "static/upload/images", filename))
+    url = url_for("post_image", filename=filename)
+    return upload_success(url, filename=filename)
+
+
+@app.route("/post/images/<path:filename>")
+def post_image(filename):
+    path = os.path.join(app.root_path, "static/upload/images")
+    return send_from_directory(f"{path}", filename)
 
 
 @app.route("/post/category/<string:category>")
