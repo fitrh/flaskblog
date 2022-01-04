@@ -26,6 +26,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "f7b3ed1c6060bdb873a6001735ea9914"
 app.config["SQLALCHEMY_DATABASE_URI"] = DB_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["CKEDITOR_FILE_UPLOADER"] = "/post/upload/images"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 ckeditor = CKEditor(app)
